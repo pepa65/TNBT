@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+set -e
+# mkhtm - Produce html file for a Bible book or the whole NT
+# Usage: mkhtm [<book>] [-d|--debug]
+#   <book> is the 3 letter abbreviation as in tx/<book>.tx
+#   if it is not given, all .tx files in tx will be used as input.
+# Required: coreutils(mktemp tail cat ls rm) sed
+# Output: stdout (debug on stderr)
+
+# .tx documents (containing a Bible book each):
+# - First line: USFM number (space) Translation abbreviation
+# - Second line: Book title
+# - Third line: Translation name, Author <Email> Phone [Licence]
+# - Chapter number: on bare line by itself
+# - Header text: line starts with '_'
+# - Indent: line starts with '.'
+# - Rest is Bible text with verse numbers interspersed
+#   (literal numbers start with ' ,')
+
+dir=$(mktemp -d) debug=0 favsrc=favsrc
+txt=NT in=tx/1CO.tx  # For getting header info for NT
+[[ $1 = -d || $1 = --debug ]] &&
+	shift && debug=1 && echo "Debugging: see files in $dir" >&2
+
+if [[ $1 ]]
+then txt=${1^^}
+	[[ ! -f tx/$txt.tx ]] &&
+		echo "ABORT, only a 3-letter Bible book is valid as an argument" >&2 && exit 1
+	in=tx/$txt.tx
+	shift
+fi
+
+[[ $1 = -d || $1 = --debug ]] &&
+	debug=1 && echo "Debugging: see files in $dir" >&2
+
+[[ ! -f $favsrc ]] &&
+	echo "ABORT, favicon data file '$favsrc' not found" >&2 && exit 2
+source "$favsrc"
+
+Meta(){ # I:in,txt O:usfm,abbr,book,title,copyright,author,license
+	# Extract metadata from a book
+	local -a header
+	mapfile -t -n 3 header <"$in"
+	usfm=${header[0]% *} abbr=${header[0]#* } book=${header[1]}
+	title=${header[2]%,*} _=${header[2]#*, } copyright=${_//[<>]}
+	author=${copyright% [*} _=${copyright##*[} license=${_%]}
+	[[ ! $txt = NT ]] || book='พระคัมภีร์ ภาคพันธ์สัญญาใหม่'
+}
+
+Sed(){ # 1:Sed-argument I:root IO:ei,eo
+	sed "$1" "$root.$ei" >"$root.$eo"
+	((ei++, eo++))
+}
+
+Book(){ # 1:book I:dir O:root,ei,eo
+	local in="tx/$1.tx" ei eo name root=$dir/$1
+	[[ ! -f $in ]] && echo "ABORT, book not found: $in" >&2 && exit 3
+	name=$(head -n 2 "$in" |tail -1)
+	ei=1 eo=2
+	tail -n +4 "$in" >"$root.$ei"
+
+	# Chapter: lines with ^[1-9][0-9]*$
+	Sed 's@^[1-9][0-9]*$@<h4>'"$name"' \0</h4>@'
+
+	# Header: ^_
+	Sed 's@_\(.*\)@<h5>\1</h5>@'
+
+	# Lines starting with '.': indented paragraphs
+	Sed 's@^\.\(.*\)@<p class="indent">\1</p>@'
+
+	# Rest of lines (not yet converted to html): paragraphs
+	Sed 's@^[^<].*@<p>\0</p>@'
+
+	# Verses (numbers with no comma to the left)
+	Sed '/^<p/ s@\([^,0-9]\)\([1-9][0-9]*\) @\1<sup>\2</sup>@g'
+
+	# Numbers over 3 digits
+	Sed "s@,\([0-9][0-9]*\)\([0-9][0-9][0-9]\)@\1\&#8239;\2@g"
+
+	# Add to file
+	echo "<br><hr><h3>$name</h3>"
+	cat "$root.$ei"
+}
+
+# Set variables from header
+Meta
+
+# Start output
+cat <<-END
+	<!DOCTYPE html>
+	<html lang="th">
+	<meta charset="utf-8">
+	<meta name="abstract" content="$book ($abbr)">
+	<meta name="description" content="$title: $book ($abbr)">
+	<meta name="author" content="$author">
+	<meta name="license" content="$license">
+	<meta name="copyright" content="$copyright">
+	<meta name="date" content="$(date +%Y-%m-%d)">
+	<meta name="contact" content="bible@godat.work">
+	<title>$book ($abbr)</title>
+	<link rel="icon" src="$fav">
+	<style>
+	body {font-family:Arundina Serif,serif; color:#666; text-align:center}
+	h1 {font-size:400%; color:#000}
+	h2 {font-size:300%}
+	h3 {font-size:340%; color:#000; margin:0}
+	h4 {font-size:200%; margin:.6em 0 0}
+	h5 {font-size:110%; margin:.6em 0 0}
+	span {color:#000}
+	hr {width:90%}
+	p {margin:0 3em .3em; text-align:left; text-indent:4em; color:#000}
+	sup {margin-right:0.3em}
+	.indent {margin-left:15em}
+	a {vertical-align:top}
+	a:link {color:#222}
+	a:visited {color:#222}
+	a:focus {color:#000}
+	a:hover {color:#000}
+	a:active {color:#000}
+	</style>
+END
+
+# Make html
+if [[ $txt = NT ]]
+then # Whole New Testament
+	echo "<h1>$book</h1>"
+	echo "<h2>$title ($abbr)</h2>"
+	books='MAT MRK LUK JHN ACT ROM 1CO 2CO GAL EPH PHP COL 1TH 2TH 1TI 2TI TIT PHM HEB JAS 1PE 2PE 1JN 2JN 3JN JUD REV'
+	for t in $books
+	do
+		Book $t
+	done
+else # Bible book
+	echo "<h2><span>$book</span> ($abbr)</h2>"
+	Book $txt
+fi
+echo '<br><hr><br><br><br><br><br><br><br><br><br><br><br><br><br><br>'
+
+((debug)) && ls -AFl "$dir" >&2 || rm -rf "$dir"

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -e
+# mkpdfs - Make pdfs of individual Bible books and the NT
+# Usage: mkpdfs
+# Required: [gitlab.com/pepa65/TNBT](mkhtm) coreutils(mkdir head) swath sed weasyprint
+
+[[ -d pdf ]] || mkdir -p pdf
+
+Mkpdf(){ # 1:book/'NT'
+	local pdf=pdf/TNBT-$1.pdf book=$1
+	echo -n "Producing '$pdf' "
+	[[ $1 = NT ]] && book=
+	set -o pipefail
+	./mkhtm $book |\
+		head -n -1 |\
+		sed -ne '/<style>/,$p' |\
+		swath -b X -u u,u |\
+		sed 's/X/<wbr>/g' |\
+		weasyprint -s weasyprint.css - "$pdf"
+	echo '- done'
+}
+
+# Make pdfs
+books='NT MAT MRK LUK JHN ACT ROM 1CO 2CO GAL EPH PHP COL 1TH 2TH 1TI 2TI TIT PHM HEB JAS 1PE 2PE 1JN 2JN 3JN JUD REV'
+for b in $books
+do Mkpdf $b
+done

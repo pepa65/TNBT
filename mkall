@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -e
+# mkall - Make all .pdf .epub and .html files
+# Usage: mkall
+# Required: [gitlab.com/pepa65/TNBT](mkhtm mkpdfs mkepub) coreutils(mkdir)
+
+# Make html/index.html
+p=html/index.html
+[[ -d html ]] || mkdir -p html
+echo -n "Producing '$p' " >&2
+./mkhtm >"$p"
+echo '- done'
+
+# Make pdf files
+./mkpdfs
+
+# Make epub
+./mkepub

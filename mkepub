@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -e
+# mkepub - Make epub file from .tx files
+# Usage: mkepub
+# Required: [gitlab.com/pepa65/TNBT](tx2htm) coreutils(mkdir) ebook-convert
+
+fav=html/favicon.png htm=html/index.html epub=epub/TNBT-NT.epub
+[[ ! -f $fav ]] && echo "ABORT, cover image '$fav' missing" && exit 1
+[[ -f $htm ]] || ./mkhtm >"$htm"
+[[ -d epub ]] || mkdir -p epub
+echo -n "Producing '$epub' "
+ebook-convert "$htm" "$epub" --output-profile kindle \
+	--title 'พระคัมภีร์ ภาคพันธ์สัญญาใหม่ (TNBT)' --book-producer 'bible@godat.work' \
+	--language tha --authors 'Banpote Wetchgama <banpote1947@gmail.com>' \
+	--pubdate $(date +%Y-%M-%d) --start-reading-at '//h:h1' --epub-inline-toc \
+	--toc-title สารบัญ --level1-toc='//h:h4' --level2-toc '//h:h5' \
+	--no-svg-cover --cover "$fav" >/dev/null
+echo '- done'
