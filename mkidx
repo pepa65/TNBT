@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -e
+# mkidx - Add index om h5 for html file
+# Usage: mkidx [<file>]
+#   <file> is the html file, indexed h5-tags need to start the line
+# Required: coreutils(mktemp tail cat ls rm) sed
+# Output: stdout
+
+[[ ! -f $1 ]] &&
+	echo "ABORT, need html filename as argument" && exit 1
+
+i=0 afterh2=0 part1= index= part2=
+mapfile -t lines <"$1"
+for line in "${lines[@]}"
+do # Add output to part1/index/part2
+	[[ $line = '</style>' ]] && part1+="a {text-decoration:none}
+a>h5 {text-align:center}
+div {column-width:34em; column-gap:0}
+div>p {text-indent:0; font-weight:bold; page-break-inside:avoid; break-inside:avoid-column;
+ -webkit-column-break-inside:avoid; -moz-column-break-inside:avoid; -moz-page-break-inside:avoid}
+p a:not(:first-child) {text-align:left; font-weight:normal}"$'\n'
+	tag=${line:0:3}
+	case $tag in
+	'<h4')
+		_=${line#*>} header=${_%%<*}
+		((++i))
+		index+="<p><a id=\"H$i\" href=\"#h$i\">$header</a><br>"$'\n'
+		part2+=$(sed "s@</${tag:1}>@</${tag:1}></a>@" <<<"<a href=\"#H$i\">$tag id=\"h$i\"${line:3}")$'\n' ;;
+	'<h5')
+		_=${line#*>} header=${_%%<*}
+		((++i))
+		index+="<a id=\"H$i\" href=\"#h$i\">$t$header</${tag:1}></a><br>"$'\n'
+		part2+=$(sed "s@</${tag:1}>@</${tag:1}></a>@" <<<"<a href=\"#H$i\">$tag id=\"h$i\"${line:3}")$'\n' ;;
+	*)
+		((afterh2)) && part2+="$line"$'\n' || part1+="$line"$'\n'
+	esac
+	[[ $tag = '<h2' ]] && afterh2=1
+done
+
+echo -en "$part1<div>\n$index</div>\n$part2"

@@ -2,6 +2,6 @@ doc/*.txt
 doc/*.jpg
 doc/*.png
 doc/*.html
-#epub/*
 #html/*
 #pdf/*
+#epub/*

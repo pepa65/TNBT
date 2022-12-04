@@ -25,8 +25,7 @@ All files can be (re)produced after modifications by: `./mkall`
   - From the plain text files, anything that is not Bible text was stripped away:
     mainly introductions and notes at the end, and a few verse references in the text.
     Some obvious minor corrections were made. The use of quotes was revised and made consistent.
-  - Section headers were detected based on length (check with `awk '{print length}' tx/*.tx |sort -n`).
-    Anything under 60 turned out to be a header (no verse numbers present).
+  - Section headers were detected based on length (and no verse numbers present).
   - Lines to be indented (poetry or quotations) needed to be marked.
   - Non-verse numbers needed to be marked. Check with:
 ```
@@ -64,6 +63,7 @@ They are used as the fundamental input for all the utility applications:
 ## A New Testament webpage
 All the books of the New Testament in one html page through: `./mkhtm`
 The resulting `html/index.html` can be served as a single-page TNBT New Testament page.
+The file `html/index.htm` is the same but without the table of contents at the start.
 
 ## Epub file for e-readers: TNBT-NT.epub
 * Produce an epub3 file with the whole New Testament: `./mkepub`

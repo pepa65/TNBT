@@ -98,7 +98,7 @@ cat <<-END
 	<meta name="date" content="$(date +%Y-%m-%d)">
 	<meta name="contact" content="bible@godat.work">
 	<title>$book ($abbr)</title>
-	<link rel="icon" src="$fav">
+	<link rel="icon" href="$fav">
 	<style>
 	body {font-family:Arundina Serif,serif; color:#666; text-align:center}
 	h1 {font-size:400%; color:#000}
@@ -112,10 +112,10 @@ cat <<-END
 	sup {margin-right:0.3em}
 	.indent {margin-left:15em}
 	a {vertical-align:top}
-	a:link {color:#222}
-	a:visited {color:#222}
+	a:link {color:#444}
+	a:visited {color:#444}
 	a:focus {color:#000}
-	a:hover {color:#000}
+	a:hover {color:#000; text-decoration:underline}
 	a:active {color:#000}
 	</style>
 END
