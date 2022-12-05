@@ -60,17 +60,22 @@ They are used as the fundamental input for all the utility applications:
 * Indent: `.` first char
 * Non-verse numbers are prefixed with `,`
 
-## A New Testament webpage
-All the books of the New Testament in one html page through: `./mkhtm`
-The resulting `html/index.html` can be served as a single-page TNBT New Testament page.
-The file `html/index.htm` is the same but without the table of contents at the start.
+## A standalone New Testament webpage
+All the books of the New Testament in a standalone html page through: `./mkhtm`
+(This uses `mkidx` to add an index to the non-indexed html page `html/TNBT-NT.htm`.)
+The resulting `html/TNBT-NT.html` can be served as a single-page TNBT New Testament html page.
 
 ## Epub file for e-readers: TNBT-NT.epub
 * Produce an epub3 file with the whole New Testament: `./mkepub`
 
 ## PDF files: TNBT-NT.pdf and individual Bible books
 * Packages needed: `swath` (Thai word breaks) and `weasyprint` (make PDFs from html).
-* Insert wordbreaks into the html file: `swath -b X -u u,u <html/index.html |sed 's/X/<wbr>/g' >NT.htm`
+* Insert wordbreaks into the html file: `swath -b X -u u,u <html/TNBT-NT.htm |sed 's/X/<wbr>/g' >NT.htm`
 * Produce simple PDF: `weasyprint -s weasyprint.css NT.htm pdf/TNBT-NT.pdf`
 * A single Bible book (eg. John) can be made into a .pdf with `mkhtm` by:
   `mkhtm JHN |swath -b X -u u,u |sed 's/X/<wbr>/g' |weasyprint -s weasyprint.css - pdf/NTBT-JHN.pdf`
+
+## Presentation website
+* The files in the `html` directory serve the introductory page to this repo, particularly:
+  `html/index.html`, `scroll.jpg` for the background and `favicon.png` as the logo/favicon
+  together with `html/nt.htm` and `html/nt.html` (which are produced by `mksrv`).

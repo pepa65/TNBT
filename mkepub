@@ -4,7 +4,7 @@ set -e
 # Usage: mkepub
 # Required: [gitlab.com/pepa65/TNBT](tx2htm) coreutils(mkdir) ebook-convert
 
-fav=html/favicon.png htm=html/index.html epub=epub/TNBT-NT.epub
+fav=html/favicon.png htm=html/TNBT-NT.htm epub=epub/TNBT-NT.epub
 [[ ! -f $fav ]] && echo "ABORT, cover image '$fav' missing" && exit 1
 [[ -f $htm ]] || ./mkhtm >"$htm"
 [[ -d epub ]] || mkdir -p epub

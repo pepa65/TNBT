@@ -5,14 +5,18 @@ set -e
 # Required: [gitlab.com/pepa65/TNBT](mkhtm mkpdfs mkepub) coreutils(mkdir)
 
 # Make webpages
-simple=html/index.htm indexed=html/index.html
+htm=html/TNBT-NT.htm html=html/TNBT-NT.html
 [[ -d html ]] || mkdir -p html
-echo -n "Producing '$simple' " >&2
-./mkhtm >"$simple"
+# Non-indexed
+echo -n "Producing '$htm' " >&2
+./mkhtm >"$htm"
 echo '- done'
-echo -n "Producing '$indexed' " >&2
-./mkidx "$simple" >"$indexed"
+# Indexed
+echo -n "Producing '$html' " >&2
+./mkidx "$htm" >"$html"
 echo '- done'
+# Pages to serve
+./mksrv
 
 # Make pdf files
 ./mkpdfs

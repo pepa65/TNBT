@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -e
-# mkidx - Add index om h5 for html file
-# Usage: mkidx [<file>]
+# mkidx - Add index on h4 and h5 for TNBT html file
+# Usage: mkidx <file>
 #   <file> is the html file, indexed h5-tags need to start the line
 # Required: coreutils(mktemp tail cat ls rm) sed
 # Output: stdout
 
 [[ ! -f $1 ]] &&
-	echo "ABORT, need html filename as argument" && exit 1
+	echo "ABORT, need html filename as argument" >&2 && exit 1
 
 i=0 afterh2=0 part1= index= part2=
 mapfile -t lines <"$1"

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# mksrv - Remove inline icon and insert background on html files
+
+str='body {font-family:Arundina Serif,serif; color:#666; text-align:center'
+ins='\n\tbackground-attachment:fixed; background-size:cover; background-image:url\(scroll.jpg\)}'
+ico='<link rel="icon" href="favicon.png">'
+
+_=$(readlink -e "$0") d=${_%/*}
+# Remove inline icon
+sed "s/${ico:0:21}.*/$ico/" "$d/html/TNBT-NT.htm" >"$d/html/nt.htm"
+sed "s/${ico:0:21}.*/$ico/" "$d/html/TNBT-NT.html" >"$d/html/nt.html"
+# Insert background
+sed "s/$str}/$str;$ins/" "$d/html/TNBT-NT.htm" >"$d/html/nt.htm"
+sed "s/$str}/$str;$ins/" "$d/html/TNBT-NT.html" >"$d/html/nt.html"
