@@ -79,3 +79,5 @@ The resulting `html/TNBT-NT.html` can be served as a single-page TNBT New Testam
 * The files in the `html` directory serve the introductory page to this repo, particularly:
   `html/index.html`, `scroll.jpg` for the background and `favicon.png` as the logo/favicon
   together with `html/nt.htm` and `html/nt.html` (which are produced by `mksrv`).
+  This requires all files in the `html` directory and for the files (or links to them) in the
+	`doc`, `pdf` and `epub` directories to be present in the same directory to be served.
